@@ -26,7 +26,7 @@ function isAuthenticated(req, res, next) {
 }
 
 // Render product select form
-app.get("/", async (req, res) => {
+app.get("/", isAuthenticated, async (req, res) => {
   try {
     const response = await axios.get(
       `${process.env.WC_URL}/wp-json/wc/v3/products`,
