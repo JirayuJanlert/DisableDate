@@ -1,0 +1,7 @@
+<h2>Login</h2>
+<% if (error) { %><p style="color:red;"><%= error %></p><% } %>
+<form method="POST" action="/login">
+  <input name="username" placeholder="Username" value="admin" required>
+  <input name="password" type="password" value="1234" placeholder="Password" required>
+  <button type="submit">Login</button>
+</form>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Duplicate Meta Form</title>
+    <script>
+      function confirmSubmission(event) {
+        const productSelect = document.getElementById("product_id");
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const selectedProduct =
+          productSelect.options[productSelect.selectedIndex].text;
+        const dateInput = document.getElementById("meta_date");
+        const productURL = selectedOption.getAttribute("data-url");
+
+        if (!dateInput.value) {
+          alert("Please select a date.");
+          event.preventDefault();
+          return;
+        }
+
+        // Convert date to timestamp (in seconds)
+        const selectedDate = new Date(dateInput.value);
+        const timestamp = Math.floor(selectedDate.getTime() / 1000);
+
+        // Put the timestamp into the hidden input
+        document.getElementById("meta_timestamp").value = timestamp;
+
+        const message =
+          `Are you sure you want to add meta key "_duplicate_key"\n` +
+          `with timestamp "${timestamp}" to product "${selectedProduct}"?`;
+
+        const confirmed = confirm(message);
+        if (!confirmed) {
+          event.preventDefault();
+        } else {
+          // Open product URL in new tab
+          window.open(productURL, "_blank");
+        }
+      }
+
+      function showProductId() {
+        const productSelect = document.getElementById("product_id");
+        const selectedOption =
+          productSelect.options[productSelect.selectedIndex];
+        const productURL = selectedOption.getAttribute("data-url");
+
+        document.getElementById(
+          "product_id_display"
+        ).innerHTML = `Product URL: <a href="${productURL}" target="_blank">${productURL}</a>`;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Select a Product and Date</h1>
+
+    <form
+      action="/disabledate"
+      method="POST"
+      onsubmit="confirmSubmission(event)"
+    >
+      <label for="product_id">Product:</label>
+      <select
+        name="product_id"
+        id="product_id"
+        onchange="showProductId()"
+        required
+      >
+        <% products.forEach(product => { %>
+        <option value="<%= product.id %>" data-url="<%= product.permalink %>">
+          <%= product.name %>
+        </option>
+
+        <% }); %>
+      </select>
+      <div id="product_id_display" style="margin-top: 10px; font-weight: bold">
+        Product URL:
+        <% if (products.length > 0) { %>
+          <a href="<%= products[0].permalink %>" target="_blank"><%= products[0].permalink %></a>
+        <% } %>
+      </div>
+      <br />
+
+      <label for="meta_date">Meta Date:</label>
+      <input type="date" id="meta_date" required />
+
+      <!-- Hidden input that will carry the timestamp value -->
+      <input type="hidden" name="meta_date" id="meta_timestamp" />
+
+      <br /><br />
+
+      <button type="submit">Add Meta Key</button>
+    </form>
+  </body>
+</html>
