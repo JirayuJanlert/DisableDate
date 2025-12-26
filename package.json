@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,6 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "https": "^1.0.0",
-    "puppeteer": "^21.6.1"
+    "puppeteer": "^24.34.0"
   }
 }

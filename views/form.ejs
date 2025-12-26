@@ -110,6 +110,19 @@
           grid-template-columns: 1fr;
           gap: 28px;
         }
+
+        .form-right {
+          display: flex;
+          flex-direction: column;
+        }
+
+        #screenshot-section {
+          order: 1;
+        }
+
+        #disabled-dates-section {
+          order: 2;
+        }
       }
 
       @keyframes fadeInUp {
@@ -170,6 +183,25 @@
         appearance: none;
         color: #2d3748;
         font-weight: 500;
+        cursor: pointer;
+        position: relative;
+      }
+
+      input[type="date"] {
+        position: relative;
+      }
+
+      /* Make the entire input clickable by extending the calendar icon area */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        opacity: 0;
       }
 
       select:hover,
@@ -427,6 +459,38 @@
         flex: 1;
       }
 
+      .disabled-date-item-hidden {
+        display: none;
+      }
+
+      .disabled-dates-list.show-all .disabled-date-item-hidden {
+        display: flex;
+      }
+
+      .show-more-button {
+        margin-top: 12px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 1.5px solid rgba(102, 126, 234, 0.3);
+        border-radius: 8px;
+        color: #667eea;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        text-align: center;
+      }
+
+      .show-more-button:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        border-color: rgba(102, 126, 234, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .show-more-button:active {
+        transform: translateY(0);
+      }
 
       .disabled-dates-empty {
         padding: 12px;
@@ -1136,6 +1200,20 @@
         return `${day}/${month}/${year}`;
       }
 
+      function toggleDisabledDates(button) {
+        const datesList = button.previousElementSibling;
+        const isExpanded = datesList.classList.contains('show-all');
+        
+        if (isExpanded) {
+          datesList.classList.remove('show-all');
+          const hiddenCount = datesList.querySelectorAll('.disabled-date-item-hidden').length;
+          button.textContent = `Show More (${hiddenCount} more)`;
+        } else {
+          datesList.classList.add('show-all');
+          button.textContent = 'Show Less';
+        }
+      }
+
       async function fetchDisabledDates(productId) {
         const datesSection = document.getElementById('disabled-dates-section');
         if (!datesSection) return;
@@ -1164,7 +1242,13 @@
               .filter(ts => !isNaN(ts))
               .sort((a, b) => b - a);
 
-            const datesHTML = sortedDates.map(timestamp => {
+            const totalDates = sortedDates.length;
+            const showLimit = 5;
+            const visibleDates = sortedDates.slice(0, showLimit);
+            const hiddenDates = sortedDates.slice(showLimit);
+            const hasMore = hiddenDates.length > 0;
+
+            const visibleHTML = visibleDates.map((timestamp, index) => {
               const formattedDate = formatDateInBangkok(timestamp);
               return `
                 <div class="disabled-date-item">
@@ -1173,9 +1257,28 @@
               `;
             }).join('');
 
+            const hiddenHTML = hiddenDates.map((timestamp, index) => {
+              const formattedDate = formatDateInBangkok(timestamp);
+              return `
+                <div class="disabled-date-item disabled-date-item-hidden">
+                  <span class="date-text">${formattedDate}</span>
+                </div>
+              `;
+            }).join('');
+
+            const showMoreButton = hasMore ? `
+              <button class="show-more-button" onclick="toggleDisabledDates(this)">
+                Show More (${hiddenDates.length} more)
+              </button>
+            ` : '';
+
             datesSection.innerHTML = `
-              <div class="disabled-dates-label">Disabled Dates (${sortedDates.length})</div>
-              <div class="disabled-dates-list">${datesHTML}</div>
+              <div class="disabled-dates-label">Disabled Dates (${totalDates})</div>
+              <div class="disabled-dates-list">
+                ${visibleHTML}
+                ${hiddenHTML}
+              </div>
+              ${showMoreButton}
             `;
             datesSection.classList.add('has-dates');
           }

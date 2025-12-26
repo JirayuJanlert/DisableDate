@@ -3,7 +3,6 @@ const axios = require("axios");
 const session = require("express-session");
 const path = require("path");
 const fs = require("fs");
-const { execSync } = require("child_process");
 require("dotenv").config();
 
 // Optional Puppeteer - only load if available
@@ -38,6 +37,11 @@ function isAuthenticated(req, res, next) {
   res.redirect("/login");
 }
 
+// Helper function to replace waitForTimeout (removed in Puppeteer v21+)
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Capture date picker section from product page
 async function captureDatePickerSection(productURL, productId) {
   // Check if Puppeteer is available
@@ -48,8 +52,8 @@ async function captureDatePickerSection(productURL, productId) {
 
   let browser = null;
   try {
-    // Configure Puppeteer for Render environment
-    const launchOptions = {
+    // Configure Puppeteer for Render environment (similar to rendertron approach)
+    browser = await puppeteer.launch({
       headless: true,
       args: [
         '--no-sandbox',
@@ -59,46 +63,9 @@ async function captureDatePickerSection(productURL, productId) {
         '--no-first-run',
         '--no-zygote',
         '--single-process',
-        '--disable-gpu',
-        '--disable-software-rasterizer',
-        '--disable-extensions'
+        '--disable-gpu'
       ]
-    };
-
-    // On Render, try to use system Chrome if available
-    if (process.env.RENDER || process.env.RENDER_EXTERNAL_URL) {
-      try {
-        // Check if chromium is available
-        execSync('which chromium', { stdio: 'ignore' });
-        launchOptions.executablePath = 'chromium';
-        console.log("Using system chromium");
-      } catch (e) {
-        try {
-          // Try chromium-browser
-          execSync('which chromium-browser', { stdio: 'ignore' });
-          launchOptions.executablePath = 'chromium-browser';
-          console.log("Using system chromium-browser");
-        } catch (e2) {
-          try {
-            // Try google-chrome
-            execSync('which google-chrome', { stdio: 'ignore' });
-            launchOptions.executablePath = 'google-chrome';
-            console.log("Using system google-chrome");
-          } catch (e3) {
-            // Use Puppeteer's bundled Chrome with custom cache directory
-            const puppeteerCacheDir = process.env.HOME ? 
-              path.join(process.env.HOME, '.cache', 'puppeteer') : 
-              '/tmp/.cache/puppeteer';
-            
-            // Set cache directory to a writable location
-            process.env.PUPPETEER_CACHE_DIR = puppeteerCacheDir;
-            console.log("Using Puppeteer's bundled Chrome with cache dir:", puppeteerCacheDir);
-          }
-        }
-      }
-    }
-
-    browser = await puppeteer.launch(launchOptions);
+    });
     const page = await browser.newPage();
     
     // Set viewport size
@@ -111,7 +78,7 @@ async function captureDatePickerSection(productURL, productId) {
     });
 
     // Wait a bit for page to fully load
-    await page.waitForTimeout(2000);
+    await delay(2000);
 
     // Look specifically for input with name="wt_date"
     let datePickerFound = false;
@@ -121,7 +88,7 @@ async function captureDatePickerSection(productURL, productId) {
         // Click the date picker to open it
         await wtDateInput.click();
         // Wait for the date picker/calendar to open
-        await page.waitForTimeout(1500);
+        await delay(1500);
         datePickerFound = true;
         console.log("Found and clicked input[name='wt_date']");
       }
@@ -146,7 +113,7 @@ async function captureDatePickerSection(productURL, productId) {
           const element = await page.$(selector);
           if (element) {
             await element.click();
-            await page.waitForTimeout(1000); // Wait for calendar to open
+            await delay(1000); // Wait for calendar to open
             datePickerFound = true;
             break;
           }
