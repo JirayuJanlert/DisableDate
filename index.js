@@ -47,10 +47,34 @@ async function captureDatePickerSection(productURL, productId) {
 
   let browser = null;
   try {
-    browser = await puppeteer.launch({
+    // Configure for Render environment
+    const launchOptions = {
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--disable-extensions'
+      ]
+    };
+
+    // Try to get executable path, fallback gracefully if not available
+    try {
+      const executablePath = puppeteer.executablePath();
+      if (executablePath) {
+        launchOptions.executablePath = executablePath;
+      }
+    } catch (err) {
+      console.warn("Could not get Puppeteer executable path, using default:", err.message);
+    }
+
+    browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
     
     // Set viewport size
@@ -380,6 +404,7 @@ app.post("/disabledate", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running at http://localhost:${process.env.PORT}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });

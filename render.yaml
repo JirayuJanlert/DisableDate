@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: disabledate
+    env: node
+    buildCommand: npm install && npx puppeteer browsers install chrome
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
