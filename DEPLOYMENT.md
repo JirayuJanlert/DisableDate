@@ -52,22 +52,24 @@ git push -u origin main
 - **Branch**: `main`
 - **Root Directory**: (leave empty, or `.` if needed)
 - **Runtime**: `Node`
-- **Build Command**: `npm install && npx puppeteer browsers install chrome`
+- **Build Command**: `npm install`
 - **Start Command**: `npm start`
 
 **Environment Variables:**
 Add all your `.env` variables in Render's dashboard:
-- `PORT` (Render will provide this, but you can set a default)
+- `PORT` (Render will provide this automatically)
 - `WC_URL`
 - `WC_CONSUMER_KEY`
 - `WC_CONSUMER_SECRET`
 - `WP_USERNAME`
 - `WP_PASSWORD`
 - `APP_PASSWORD`
+- `RENDER=true` (optional, helps Puppeteer detect Render environment)
 
 **Important Notes:**
 - Render provides a `PORT` environment variable automatically
-- Make sure your `index.js` uses `process.env.PORT || 3000` (check if it does)
+- The build script will automatically install Chrome for Puppeteer
+- If you get Chrome errors, the build command will handle Chrome installation
 
 ### 2.4 Advanced Settings (Optional)
 

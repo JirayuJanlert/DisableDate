@@ -3,6 +3,7 @@ const axios = require("axios");
 const session = require("express-session");
 const path = require("path");
 const fs = require("fs");
+const { execSync } = require("child_process");
 require("dotenv").config();
 
 // Optional Puppeteer - only load if available
@@ -47,7 +48,7 @@ async function captureDatePickerSection(productURL, productId) {
 
   let browser = null;
   try {
-    // Configure for Render environment
+    // Configure Puppeteer for Render environment
     const launchOptions = {
       headless: true,
       args: [
@@ -64,14 +65,37 @@ async function captureDatePickerSection(productURL, productId) {
       ]
     };
 
-    // Try to get executable path, fallback gracefully if not available
-    try {
-      const executablePath = puppeteer.executablePath();
-      if (executablePath) {
-        launchOptions.executablePath = executablePath;
+    // On Render, try to use system Chrome if available
+    if (process.env.RENDER || process.env.RENDER_EXTERNAL_URL) {
+      try {
+        // Check if chromium is available
+        execSync('which chromium', { stdio: 'ignore' });
+        launchOptions.executablePath = 'chromium';
+        console.log("Using system chromium");
+      } catch (e) {
+        try {
+          // Try chromium-browser
+          execSync('which chromium-browser', { stdio: 'ignore' });
+          launchOptions.executablePath = 'chromium-browser';
+          console.log("Using system chromium-browser");
+        } catch (e2) {
+          try {
+            // Try google-chrome
+            execSync('which google-chrome', { stdio: 'ignore' });
+            launchOptions.executablePath = 'google-chrome';
+            console.log("Using system google-chrome");
+          } catch (e3) {
+            // Use Puppeteer's bundled Chrome with custom cache directory
+            const puppeteerCacheDir = process.env.HOME ? 
+              path.join(process.env.HOME, '.cache', 'puppeteer') : 
+              '/tmp/.cache/puppeteer';
+            
+            // Set cache directory to a writable location
+            process.env.PUPPETEER_CACHE_DIR = puppeteerCacheDir;
+            console.log("Using Puppeteer's bundled Chrome with cache dir:", puppeteerCacheDir);
+          }
+        }
       }
-    } catch (err) {
-      console.warn("Could not get Puppeteer executable path, using default:", err.message);
     }
 
     browser = await puppeteer.launch(launchOptions);
