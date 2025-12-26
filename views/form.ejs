@@ -1,8 +1,1090 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/webp" href="/bu.webp">
     <title>Duplicate Meta Form</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+        position: relative;
+      }
+
+      .top-bar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .top-bar .user-info {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 16px;
+        font-size: 13px;
+        color: #667eea;
+        font-weight: 500;
+      }
+
+      .top-bar .logout-link {
+        margin-left: 10px;
+        color: #764ba2;
+        text-decoration: none;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+      }
+
+      .top-bar .logout-link:hover {
+        background: rgba(118, 75, 162, 0.1);
+      }
+
+      .main-content {
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 60px);
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+        padding: 48px;
+        max-width: 1200px;
+        width: 100%;
+        position: relative;
+        animation: fadeInUp 0.5s ease;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .form-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .form-left {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .form-right {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      @media (max-width: 1024px) {
+        .form-main {
+          grid-template-columns: 1fr;
+          gap: 28px;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+      }
+
+      label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      label::before {
+        content: '';
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+      }
+
+      select,
+      input[type="date"] {
+        width: 100%;
+        padding: 16px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: inherit;
+        background-color: #f8fafc;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        -webkit-appearance: none;
+        appearance: none;
+        color: #2d3748;
+        font-weight: 500;
+      }
+
+      select:hover,
+      input[type="date"]:hover {
+        border-color: #cbd5e0;
+        background-color: #fff;
+      }
+
+      select:focus,
+      input[type="date"]:focus {
+        outline: none;
+        border-color: #667eea;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-1px);
+      }
+
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+        cursor: pointer;
+      }
+
+      #product_id_display {
+        margin-top: 12px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        transition: all 0.3s ease;
+      }
+
+      .url-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.06) 100%);
+        border: 1.5px solid rgba(102, 126, 234, 0.2);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .url-container:hover {
+        border-color: rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      }
+
+      .url-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #667eea;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 2px;
+      }
+
+      .url-label::before {
+        content: '🔗';
+        font-size: 12px;
+      }
+
+      .url-content {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+
+      .url-link {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .url-link::after {
+        content: '↗';
+        font-size: 14px;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+        margin-left: auto;
+      }
+
+      .url-link:hover {
+        color: #764ba2;
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      }
+
+      .url-link:hover::after {
+        opacity: 1;
+        transform: translate(2px, -2px);
+      }
+
+      .url-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .url-link .copy-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 8px;
+        margin-left: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3);
+        flex-shrink: 0;
+      }
+
+      .copy-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3);
+      }
+
+      .copy-button:not([data-url]) {
+        display: none;
+      }
+
+      .copy-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+      }
+
+      .copy-button:active {
+        transform: translateY(0);
+      }
+
+      .copy-button.copied {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        box-shadow: 0 1px 4px rgba(72, 187, 120, 0.3);
+      }
+
+      .copy-button::before {
+        content: '📋';
+        font-size: 11px;
+      }
+
+      .copy-button.copied::before {
+        content: '✓';
+        font-size: 12px;
+      }
+
+      .url-empty {
+        padding: 12px;
+        color: #a0aec0;
+        font-size: 14px;
+        font-style: italic;
+        text-align: center;
+      }
+
+      .disabled-dates-section {
+        margin-top: 16px;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 152, 0, 0.08) 100%);
+        border: 1.5px solid rgba(255, 193, 7, 0.3);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .disabled-dates-section.has-dates {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+        border-color: rgba(255, 193, 7, 0.4);
+      }
+
+      .disabled-dates-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #f59e0b;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+      }
+
+      .disabled-dates-label::before {
+        content: '📅';
+        font-size: 14px;
+      }
+
+      .disabled-dates-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .disabled-date-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: white;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #92400e;
+        transition: all 0.2s ease;
+      }
+
+      .disabled-date-item:hover {
+        border-color: #fbbf24;
+        background: #fffbeb;
+        transform: translateX(2px);
+      }
+
+      .disabled-date-item .date-text {
+        font-weight: 500;
+        flex: 1;
+      }
+
+
+      .disabled-dates-empty {
+        padding: 12px;
+        color: #a0aec0;
+        font-size: 13px;
+        font-style: italic;
+        text-align: center;
+      }
+
+      .screenshot-section {
+        margin-top: 24px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(22, 163, 74, 0.08) 100%);
+        border: 1.5px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .screenshot-section.has-image {
+        border-color: rgba(34, 197, 94, 0.5);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+      }
+
+      .screenshot-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #22c55e;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+      }
+
+      .screenshot-label::before {
+        content: '📸';
+        font-size: 14px;
+      }
+
+      .screenshot-image {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 2px solid rgba(34, 197, 94, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .screenshot-image:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+      }
+
+      .screenshot-empty {
+        padding: 12px;
+        color: #a0aec0;
+        font-size: 13px;
+        font-style: italic;
+        text-align: center;
+      }
+
+      .screenshot-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        gap: 12px;
+      }
+
+      .download-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+        text-decoration: none;
+      }
+
+      .download-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+      }
+
+      .download-button:active {
+        transform: translateY(0);
+      }
+
+      .download-button::before {
+        content: '⬇️';
+        font-size: 14px;
+      }
+
+      .disabled-dates-loading {
+        padding: 12px;
+        color: #667eea;
+        font-size: 13px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .disabled-dates-loading::before {
+        content: '⏳';
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      button[type="submit"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 18px 36px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      button[type="submit"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      button[type="submit"]:hover::before {
+        left: 100%;
+      }
+
+      button[type="submit"]:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+      }
+
+      button[type="submit"]:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button[type="submit"]:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Tablet Responsive Styles */
+      @media (max-width: 1024px) {
+        .container {
+          max-width: 90%;
+          padding: 40px 36px;
+        }
+      }
+
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        .main-content {
+          padding: 16px;
+          padding-top: 24px;
+        }
+
+        .top-bar {
+          padding: 10px 16px;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+        }
+
+        .top-bar > div:first-child {
+          font-size: 14px;
+        }
+
+        .container {
+          padding: 32px 24px;
+          border-radius: 16px;
+          max-width: 100%;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .top-bar .user-info {
+          font-size: 12px;
+          padding: 5px 12px;
+        }
+
+        form {
+          gap: 24px;
+        }
+
+        .form-group {
+          gap: 8px;
+        }
+
+        label {
+          font-size: 12px;
+          margin-bottom: 6px;
+        }
+
+        select,
+        input[type="date"] {
+          padding: 16px;
+          font-size: 16px; /* Prevents zoom on iOS */
+          border-radius: 10px;
+        }
+
+        button[type="submit"] {
+          padding: 18px 28px;
+          font-size: 15px;
+          width: 100%;
+          border-radius: 10px;
+        }
+
+        .url-container {
+          padding: 8px 10px;
+          border-radius: 8px;
+        }
+
+        .url-content {
+          gap: 0;
+        }
+
+        .url-link {
+          width: 100%;
+          font-size: 12px;
+          padding: 6px 10px;
+          flex-wrap: wrap;
+        }
+
+        .url-text {
+          white-space: normal;
+          word-break: break-all;
+          flex: 1;
+          min-width: 0;
+          margin-right: 4px;
+        }
+
+        .url-link .copy-button {
+          flex-shrink: 0;
+          margin-left: auto;
+        }
+
+        .copy-button {
+          padding: 4px 8px;
+          font-size: 11px;
+        }
+
+        .disabled-dates-section {
+          padding: 14px;
+          margin-top: 12px;
+        }
+
+        .disabled-date-item {
+          padding: 10px 12px;
+          font-size: 13px;
+        }
+
+      }
+
+      @media (max-width: 480px) {
+        .main-content {
+          padding: 12px;
+          padding-top: 16px;
+        }
+
+        .top-bar {
+          padding: 8px 12px;
+        }
+
+        .top-bar > div:first-child {
+          font-size: 13px;
+        }
+
+        .container {
+          padding: 24px 20px;
+          border-radius: 14px;
+        }
+
+
+        .top-bar .user-info {
+          flex-direction: row;
+          font-size: 11px;
+          padding: 4px 10px;
+        }
+
+        form {
+          gap: 20px;
+        }
+
+        .form-group {
+          gap: 6px;
+        }
+
+        label {
+          font-size: 11px;
+        }
+
+        select,
+        input[type="date"] {
+          padding: 14px;
+          font-size: 16px;
+        }
+
+        button[type="submit"] {
+          padding: 16px 24px;
+          font-size: 14px;
+          letter-spacing: 0.8px;
+        }
+
+        .url-container {
+          padding: 8px 10px;
+        }
+
+        .url-label {
+          font-size: 10px;
+        }
+
+        .url-link {
+          font-size: 11px;
+          padding: 6px 8px;
+          flex-wrap: wrap;
+        }
+
+        .url-text {
+          white-space: normal;
+          word-break: break-all;
+          flex: 1;
+          min-width: 0;
+          margin-right: 4px;
+        }
+
+        .url-link .copy-button {
+          flex-shrink: 0;
+          margin-left: auto;
+        }
+
+        .copy-button {
+          font-size: 12px;
+          padding: 10px;
+        }
+
+        .disabled-dates-section {
+          padding: 12px;
+          margin-top: 10px;
+        }
+
+        .disabled-dates-label {
+          font-size: 11px;
+          margin-bottom: 10px;
+        }
+
+        .disabled-date-item {
+          padding: 8px 10px;
+          font-size: 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+        }
+
+      }
+
+      @media (max-width: 360px) {
+        .container {
+          padding: 20px 16px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+      }
+
+      /* Improve touch targets for mobile */
+      @media (hover: none) and (pointer: coarse) {
+        select,
+        input[type="date"],
+        button[type="submit"] {
+          min-height: 48px;
+        }
+      }
+
+      /* Dialog Styles */
+      .dialog-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.2s ease;
+      }
+
+      .dialog-overlay.show {
+        display: flex;
+      }
+
+      .dialog {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        max-width: 90%;
+        width: 100%;
+        max-width: 500px;
+        padding: 0;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      .dialog-overlay.show .dialog {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .dialog-header {
+        padding: 24px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .dialog-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+      }
+
+      .dialog-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+
+      .dialog-close:hover {
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      .dialog-body {
+        padding: 24px;
+        color: #555;
+        font-size: 16px;
+        line-height: 1.6;
+        white-space: pre-line;
+      }
+
+      .dialog-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      .dialog-button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 100px;
+      }
+
+      .dialog-button-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .dialog-button-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .dialog-button-secondary {
+        background: #f5f5f5;
+        color: #333;
+      }
+
+      .dialog-button-secondary:hover {
+        background: #e0e0e0;
+      }
+
+      .dialog.error .dialog-title {
+        color: #c33;
+      }
+
+      .dialog.success .dialog-title {
+        color: #3c3;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px) scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dialog {
+          max-width: 95%;
+          margin: 20px;
+        }
+
+        .dialog-header,
+        .dialog-body {
+          padding: 20px;
+        }
+
+        .dialog-footer {
+          padding: 12px 20px;
+          flex-direction: column-reverse;
+        }
+
+        .dialog-button {
+          width: 100%;
+        }
+      }
+    </style>
     <script>
+      // Custom Dialog System
+      window.showDialog = function(message, type = 'info', showCancel = false) {
+        return new Promise((resolve) => {
+          const overlay = document.getElementById('dialog-overlay');
+          const dialog = document.getElementById('dialog');
+          const titleEl = document.getElementById('dialog-title');
+          const bodyEl = document.getElementById('dialog-body');
+          const confirmBtn = document.getElementById('dialog-confirm');
+          const cancelBtn = document.getElementById('dialog-cancel');
+
+          // Set dialog type class
+          dialog.className = 'dialog ' + type;
+
+          // Set title based on type
+          const titles = {
+            'info': 'Information',
+            'success': 'Success',
+            'error': 'Error',
+            'confirm': 'Confirm'
+          };
+          titleEl.textContent = titles[type] || 'Dialog';
+
+          // Set message
+          bodyEl.textContent = message;
+
+          // Show/hide cancel button
+          cancelBtn.style.display = showCancel ? 'block' : 'none';
+
+          // Show dialog
+          overlay.classList.add('show');
+
+          // Button handlers
+          const handleConfirm = () => {
+            overlay.classList.remove('show');
+            resolve(true);
+            cleanup();
+          };
+
+          const handleCancel = () => {
+            overlay.classList.remove('show');
+            resolve(false);
+            cleanup();
+          };
+
+          const handleClose = () => {
+            overlay.classList.remove('show');
+            resolve(false);
+            cleanup();
+          };
+
+          const cleanup = () => {
+            confirmBtn.removeEventListener('click', handleConfirm);
+            cancelBtn.removeEventListener('click', handleCancel);
+            document.getElementById('dialog-close').removeEventListener('click', handleClose);
+            overlay.removeEventListener('click', handleOverlayClick);
+          };
+
+          const handleOverlayClick = (e) => {
+            if (e.target === overlay) {
+              handleCancel();
+            }
+          };
+
+          confirmBtn.addEventListener('click', handleConfirm);
+          cancelBtn.addEventListener('click', handleCancel);
+          document.getElementById('dialog-close').addEventListener('click', handleClose);
+          overlay.addEventListener('click', handleOverlayClick);
+        });
+      }
+
+      // Replace alert function
+      window.alert = function(message) {
+        return showDialog(message, 'info', false);
+      };
+
+      // Replace confirm function
+      window.confirm = function(message) {
+        return showDialog(message, 'confirm', true);
+      };
+
       function confirmSubmission(event) {
         const productSelect = document.getElementById("product_id");
         const selectedOption = productSelect.options[productSelect.selectedIndex];
@@ -12,7 +1094,7 @@
         const productURL = selectedOption.getAttribute("data-url");
 
         if (!dateInput.value) {
-          alert("Please select a date.");
+          showDialog("Please select a date.", 'error', false);
           event.preventDefault();
           return;
         }
@@ -24,16 +1106,100 @@
         // Put the timestamp into the hidden input
         document.getElementById("meta_timestamp").value = timestamp;
 
-        const message =
-          `Are you sure you want to add meta key "_duplicate_key"\n` +
-          `with timestamp "${timestamp}" to product "${selectedProduct}"?`;
+        // Format date for display
+        const formattedDate = formatDateInBangkok(timestamp);
 
-        const confirmed = confirm(message);
-        if (!confirmed) {
-          event.preventDefault();
-        } else {
-          // Open product URL in new tab
-          window.open(productURL, "_blank");
+        const message =
+          `Are you sure you want to add closed date "${formattedDate}"\n` +
+          `to product "${selectedProduct}"?`;
+
+        // Use async/await for confirm dialog
+        event.preventDefault();
+        window.confirm(message).then((confirmed) => {
+          if (confirmed) {
+            // Submit the form
+            event.target.submit();
+          }
+        });
+      }
+
+      function formatDateInBangkok(timestamp) {
+        // Convert timestamp (seconds) to milliseconds
+        // Timestamp is already in Bangkok time, so no timezone conversion needed
+        const date = new Date(timestamp * 1000);
+        
+        // Format date as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+      }
+
+      async function fetchDisabledDates(productId) {
+        const datesSection = document.getElementById('disabled-dates-section');
+        if (!datesSection) return;
+
+        datesSection.innerHTML = `
+          <div class="disabled-dates-loading">Loading disabled dates...</div>
+        `;
+
+        try {
+          const response = await fetch(`/api/product/${productId}/meta`);
+          if (!response.ok) throw new Error('Failed to fetch dates');
+          
+          const data = await response.json();
+          const disabledDates = data.disabledDates || [];
+
+          if (disabledDates.length === 0) {
+            datesSection.innerHTML = `
+              <div class="disabled-dates-label">Disabled Dates</div>
+              <div class="disabled-dates-empty">No disabled dates set for this product</div>
+            `;
+            datesSection.classList.remove('has-dates');
+          } else {
+            // Sort dates in descending order (most recent first)
+            const sortedDates = disabledDates
+              .map(ts => parseInt(ts))
+              .filter(ts => !isNaN(ts))
+              .sort((a, b) => b - a);
+
+            const datesHTML = sortedDates.map(timestamp => {
+              const formattedDate = formatDateInBangkok(timestamp);
+              return `
+                <div class="disabled-date-item">
+                  <span class="date-text">${formattedDate}</span>
+                </div>
+              `;
+            }).join('');
+
+            datesSection.innerHTML = `
+              <div class="disabled-dates-label">Disabled Dates (${sortedDates.length})</div>
+              <div class="disabled-dates-list">${datesHTML}</div>
+            `;
+            datesSection.classList.add('has-dates');
+          }
+        } catch (error) {
+          console.error('Error fetching disabled dates:', error);
+          datesSection.innerHTML = `
+            <div class="disabled-dates-label">Disabled Dates</div>
+            <div class="disabled-dates-empty">Error loading dates</div>
+          `;
+          datesSection.classList.remove('has-dates');
+        }
+      }
+
+      function truncateURL(url) {
+        try {
+          const urlObj = new URL(url);
+          return '...' + urlObj.pathname + (urlObj.search || '') + (urlObj.hash || '');
+        } catch (e) {
+          // If URL parsing fails, try to find the path manually
+          const match = url.match(/\/\/[^\/]+(\/.*)/);
+          if (match) {
+            return '...' + match[1];
+          }
+          return url; // Return original if we can't parse it
         }
       }
 
@@ -42,52 +1208,282 @@
         const selectedOption =
           productSelect.options[productSelect.selectedIndex];
         const productURL = selectedOption.getAttribute("data-url");
+        const productId = selectedOption.value;
 
-        document.getElementById(
-          "product_id_display"
-        ).innerHTML = `Product URL: <a href="${productURL}" target="_blank">${productURL}</a>`;
+        // Truncate URL for display
+        const displayURL = truncateURL(productURL);
+
+        // Escape HTML and quotes for safe insertion
+        const escapedURL = productURL
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+        
+        const escapedDisplayURL = displayURL
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+        
+        const escapedURLForJS = productURL
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, "\\'")
+          .replace(/"/g, '\\"');
+
+        const displayHTML = `
+          <div class="url-container">
+            <div class="url-label">Product URL</div>
+            <div class="url-content">
+              <a href="${escapedURL}" target="_blank" class="url-link" rel="noopener noreferrer">
+                <span class="url-text">${escapedDisplayURL}</span>
+                <button class="copy-button" data-url="${escapedURLForJS}" title="Copy URL">
+                  Copy
+                </button>
+              </a>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById("product_id_display").innerHTML = displayHTML;
+
+        // Fetch and display disabled dates
+        if (productId) {
+          fetchDisabledDates(productId);
+        }
       }
+
+      function copyToClipboard(text, button) {
+        navigator.clipboard.writeText(text).then(() => {
+          const originalText = button.innerHTML;
+          button.classList.add('copied');
+          button.innerHTML = button.innerHTML.replace('📋', '✓').replace('Copy', 'Copied!');
+          
+          setTimeout(() => {
+            button.classList.remove('copied');
+            button.innerHTML = originalText;
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            const originalText = button.innerHTML;
+            button.classList.add('copied');
+            button.innerHTML = button.innerHTML.replace('📋', '✓').replace('Copy', 'Copied!');
+            setTimeout(() => {
+              button.classList.remove('copied');
+              button.innerHTML = originalText;
+            }, 2000);
+          } catch (err) {
+            alert('Failed to copy URL');
+          }
+          document.body.removeChild(textArea);
+        });
+      }
+
+      // Handle copy button clicks using event delegation
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('copy-button') || e.target.closest('.copy-button')) {
+          e.preventDefault();
+          e.stopPropagation();
+          const button = e.target.classList.contains('copy-button') ? e.target : e.target.closest('.copy-button');
+          const url = button.getAttribute('data-url') || button.dataset.url;
+          if (url) {
+            copyToClipboard(url, button);
+          }
+        }
+      });
+
+      function downloadScreenshot(screenshotPath) {
+        const link = document.createElement('a');
+        link.href = screenshotPath;
+        link.download = 'screenshot.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      function displayScreenshot(screenshotPath) {
+        const screenshotSection = document.getElementById('screenshot-section');
+        if (!screenshotSection) return;
+
+        screenshotSection.style.display = 'block';
+        screenshotSection.innerHTML = `
+          <div class="screenshot-actions">
+            <div class="screenshot-label">Date Picker Preview</div>
+            <button class="download-button" onclick="downloadScreenshot('${screenshotPath}')">Download</button>
+          </div>
+          <img src="${screenshotPath}" alt="Date picker screenshot" class="screenshot-image" onerror="this.parentElement.innerHTML='<div class=\\'screenshot-empty\\'>Failed to load screenshot</div>'">
+        `;
+        screenshotSection.classList.add('has-image');
+        
+        // Scroll to screenshot with large offset to show more content above
+        setTimeout(() => {
+          const elementPosition = screenshotSection.getBoundingClientRect().top + window.pageYOffset;
+          // Use viewport height to calculate offset, showing more content above
+          const viewportHeight = window.innerHeight;
+          const offsetPosition = elementPosition - (viewportHeight * 0.8); // Scroll up to show 80% of viewport above
+          window.scrollTo({
+            top: Math.max(0, offsetPosition), // Ensure we don't scroll to negative position
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
+
+      // Handle dialog messages from server responses
+      window.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        const type = urlParams.get('type') || 'info';
+        const screenshot = urlParams.get('screenshot');
+        const productId = urlParams.get('product_id');
+        
+        if (message) {
+          showDialog(decodeURIComponent(message), type, false);
+        }
+
+        // Display screenshot if available
+        if (screenshot) {
+          displayScreenshot(screenshot);
+        }
+
+        // Truncate initial URL display if it exists
+        const initialUrlText = document.querySelector('#product_id_display .url-text');
+        if (initialUrlText) {
+          const fullURL = initialUrlText.textContent;
+          initialUrlText.textContent = truncateURL(fullURL);
+        }
+
+        // Load disabled dates for the first product on page load or selected product
+        const productSelect = document.getElementById("product_id");
+        if (productSelect && productSelect.options.length > 0) {
+          const targetProductId = productId || productSelect.options[0].value;
+          if (targetProductId) {
+            // Select the product if product_id is in URL
+            if (productId) {
+              productSelect.value = productId;
+              showProductId();
+            } else {
+              fetchDisabledDates(targetProductId);
+            }
+          }
+        }
+
+        // Clean URL after processing
+        if (message || screenshot || productId) {
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+      });
     </script>
   </head>
   <body>
-    <h1>Select a Product and Date</h1>
-
-    <form
-      action="/disabledate"
-      method="POST"
-      onsubmit="confirmSubmission(event)"
-    >
-      <label for="product_id">Product:</label>
-      <select
-        name="product_id"
-        id="product_id"
-        onchange="showProductId()"
-        required
-      >
-        <% products.forEach(product => { %>
-        <option value="<%= product.id %>" data-url="<%= product.permalink %>">
-          <%= product.name %>
-        </option>
-
-        <% }); %>
-      </select>
-      <div id="product_id_display" style="margin-top: 10px; font-weight: bold">
-        Product URL:
-        <% if (products.length > 0) { %>
-          <a href="<%= products[0].permalink %>" target="_blank"><%= products[0].permalink %></a>
-        <% } %>
+    <!-- Top Bar -->
+    <% if (typeof user !== 'undefined' && user) { %>
+    <div class="top-bar">
+      <div style="font-weight: 600; color: #2d3748; font-size: 16px;">📅 Closed Dates Manager</div>
+      <div class="user-info">
+        <span>👤 <%= user %></span>
+        <a href="/logout" class="logout-link">Logout</a>
       </div>
-      <br />
+    </div>
+    <% } %>
 
-      <label for="meta_date">Meta Date:</label>
-      <input type="date" id="meta_date" required />
+    <!-- Dialog Overlay -->
+    <div id="dialog-overlay" class="dialog-overlay">
+      <div id="dialog" class="dialog">
+        <div class="dialog-header">
+          <h3 id="dialog-title" class="dialog-title">Dialog</h3>
+          <button id="dialog-close" class="dialog-close" aria-label="Close">×</button>
+        </div>
+        <div class="dialog-body" id="dialog-body">
+          Message content
+        </div>
+        <div class="dialog-footer">
+          <button id="dialog-cancel" class="dialog-button dialog-button-secondary">Cancel</button>
+          <button id="dialog-confirm" class="dialog-button dialog-button-primary">OK</button>
+        </div>
+      </div>
+    </div>
 
-      <!-- Hidden input that will carry the timestamp value -->
-      <input type="hidden" name="meta_date" id="meta_timestamp" />
+    <div class="main-content">
+      <div class="container">
+      <form
+        action="/disabledate"
+        method="POST"
+        onsubmit="confirmSubmission(event)"
+      >
+        <div class="form-main">
+          <div class="form-left">
+            <div class="form-group">
+              <label for="product_id">Product:</label>
+              <select
+                name="product_id"
+                id="product_id"
+                onchange="showProductId()"
+                required
+              >
+                <% products.forEach(product => { %>
+                <option value="<%= product.id %>" data-url="<%= product.permalink %>">
+                  <%= product.name %>
+                </option>
+                <% }); %>
+              </select>
+              <div id="product_id_display">
+                <% if (products.length > 0) { %>
+                  <div class="url-container">
+                    <div class="url-label">Product URL</div>
+                    <div class="url-content">
+                      <a href="<%= products[0].permalink %>" target="_blank" class="url-link" rel="noopener noreferrer">
+                        <span class="url-text"><%= products[0].permalink %></span>
+                        <button class="copy-button" data-url="<%= products[0].permalink %>" title="Copy URL">
+                          Copy
+                        </button>
+                      </a>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="url-empty">No products available</div>
+                <% } %>
+              </div>
+            </div>
 
-      <br /><br />
+            <div class="form-group">
+              <label for="meta_date">Meta Date:</label>
+              <input type="date" id="meta_date" required />
+            </div>
 
-      <button type="submit">Add Meta Key</button>
-    </form>
+            <!-- Hidden input that will carry the timestamp value -->
+            <input type="hidden" name="meta_date" id="meta_timestamp" />
+
+            <button type="submit">Add Closed Date</button>
+          </div>
+
+          <div class="form-right">
+            <div id="disabled-dates-section">
+              <% if (products.length > 0) { %>
+                <div class="disabled-dates-loading">Loading disabled dates...</div>
+              <% } else { %>
+                <div class="disabled-dates-empty">Select a product to view disabled dates</div>
+              <% } %>
+            </div>
+
+            <div id="screenshot-section" class="screenshot-section" style="display: none;">
+              <div class="screenshot-empty">Screenshot will appear here after adding a date</div>
+            </div>
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
   </body>
 </html>

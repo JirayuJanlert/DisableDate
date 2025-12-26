@@ -1,7 +1,231 @@
-<h2>Login</h2>
-<% if (error) { %><p style="color:red;"><%= error %></p><% } %>
-<form method="POST" action="/login">
-  <input name="username" placeholder="Username" value="admin" required>
-  <input name="password" type="password" value="1234" placeholder="Password" required>
-  <button type="submit">Login</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/webp" href="/bu.webp">
+    <title>Login - Duplicate Meta Form</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 450px;
+        width: 100%;
+      }
+
+      h2 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 32px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .error-message {
+        background-color: #fee;
+        border: 2px solid #fcc;
+        color: #c33;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        background-color: #fff;
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      input[type="text"]::placeholder,
+      input[type="password"]::placeholder {
+        color: #999;
+      }
+
+      button[type="submit"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+      }
+
+      button[type="submit"]:active {
+        transform: translateY(0);
+      }
+
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        body {
+          padding: 16px;
+        }
+
+        .container {
+          padding: 32px 24px;
+          border-radius: 12px;
+        }
+
+        h2 {
+          font-size: 28px;
+          margin-bottom: 24px;
+        }
+
+        form {
+          gap: 18px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+          padding: 16px;
+          font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        button[type="submit"] {
+          padding: 18px 24px;
+          font-size: 16px;
+          width: 100%;
+        }
+
+        .error-message {
+          padding: 10px 14px;
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 12px;
+        }
+
+        .container {
+          padding: 28px 20px;
+        }
+
+        h2 {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+
+        form {
+          gap: 16px;
+        }
+      }
+
+      /* Improve touch targets for mobile */
+      @media (hover: none) and (pointer: coarse) {
+        input[type="text"],
+        input[type="password"],
+        button[type="submit"] {
+          min-height: 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Login</h2>
+      
+      <% if (error) { %>
+        <div class="error-message">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input 
+            type="text" 
+            id="username"
+            name="username" 
+            placeholder="Enter your username" 
+            value="admin" 
+            required
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password"
+            name="password" 
+            placeholder="Enter your password" 
+            value="Bukit2111" 
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </body>
+</html>
