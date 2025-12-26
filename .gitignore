@@ -2,3 +2,4 @@
 .codegpt
 .env
 screenshots/
+/node_modules
