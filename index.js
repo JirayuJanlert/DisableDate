@@ -72,14 +72,31 @@ async function captureDatePickerSection(productURL, productId) {
     });
     const page = await browser.newPage();
     
+    // Handle page errors to prevent crashes
+    page.on('error', (err) => {
+      console.warn('Page error:', err.message);
+    });
+    
+    page.on('pageerror', (err) => {
+      console.warn('Page error:', err.message);
+    });
+    
     // Set viewport size
     await page.setViewport({ width: 1920, height: 1080 });
     
-    // Navigate to product page
-    await page.goto(productURL, { 
-      waitUntil: 'networkidle2',
-      timeout: 30000 
-    });
+    // Navigate to product page with error handling
+    try {
+      await page.goto(productURL, { 
+        waitUntil: 'networkidle2',
+        timeout: 30000 
+      });
+    } catch (navError) {
+      console.warn("Navigation error, trying with domcontentloaded:", navError.message);
+      await page.goto(productURL, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 30000 
+      });
+    }
 
     // Wait a bit for page to fully load
     await delay(2000);
@@ -206,7 +223,28 @@ async function captureDatePickerSection(productURL, productId) {
     throw error;
   } finally {
     if (browser) {
-      await browser.close();
+      try {
+        // Close all pages first
+        const pages = await browser.pages();
+        await Promise.all(pages.map(page => {
+          return page.close().catch(() => {
+            // Ignore errors when closing pages
+          });
+        }));
+        
+        // Then close the browser
+        await browser.close();
+      } catch (closeError) {
+        console.warn("Error closing browser:", closeError.message);
+        // If normal close fails, try to disconnect
+        try {
+          if (browser.isConnected()) {
+            browser.disconnect();
+          }
+        } catch (disconnectError) {
+          // Ignore disconnect errors
+        }
+      }
     }
   }
 }
