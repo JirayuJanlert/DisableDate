@@ -531,6 +531,11 @@
         font-size: 14px;
       }
 
+      .screenshot-image-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
       .screenshot-image {
         width: 100%;
         max-width: 100%;
@@ -538,11 +543,42 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         border: 2px solid rgba(34, 197, 94, 0.2);
         transition: all 0.3s ease;
+        display: block;
+        -webkit-touch-callout: default;
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: manipulation;
       }
 
       .screenshot-image:hover {
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         transform: translateY(-2px);
+      }
+
+      .screenshot-image:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+
+      /* Enable long-press context menu on mobile */
+      @media (hover: none) and (pointer: coarse) {
+        .screenshot-image {
+          -webkit-touch-callout: default;
+          -webkit-user-select: auto;
+          user-select: auto;
+        }
+      }
+
+      .screenshot-hint {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 6px;
+        color: #16a34a;
+        font-size: 12px;
+        text-align: center;
+        font-weight: 500;
       }
 
       .screenshot-empty {
@@ -874,6 +910,16 @@
           flex-direction: column;
           align-items: flex-start;
           gap: 6px;
+        }
+
+        .screenshot-hint {
+          font-size: 11px;
+          padding: 6px 10px;
+        }
+
+        .download-button {
+          padding: 12px 20px;
+          font-size: 14px;
         }
 
       }
@@ -1406,26 +1452,121 @@
         }
       });
 
-      function downloadScreenshot(screenshotPath) {
-        const link = document.createElement('a');
-        link.href = screenshotPath;
-        link.download = 'screenshot.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Legacy function - now uses saveToGallery
+      async function downloadScreenshot(screenshotPath) {
+        await saveToGallery(screenshotPath);
+      }
+
+      async function saveToGallery(screenshotPath) {
+        try {
+          // Check if Web Share API is available (better for mobile)
+          if (navigator.share && navigator.canShare) {
+            try {
+              // Fetch the image as blob
+              const response = await fetch(screenshotPath);
+              const blob = await response.blob();
+              const file = new File([blob], 'date-picker-screenshot.png', { type: 'image/png' });
+              
+              if (navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                  files: [file],
+                  title: 'Date Picker Screenshot',
+                  text: 'Screenshot from Closed Dates Manager'
+                });
+                return;
+              }
+            } catch (shareError) {
+              // If share fails, fall through to download method
+              console.log('Share API not available or cancelled, using download method');
+            }
+          }
+          
+          // Fetch the image
+          const response = await fetch(screenshotPath);
+          const blob = await response.blob();
+          
+          // Create a canvas to ensure proper image format
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          await new Promise((resolve, reject) => {
+            img.onload = () => {
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+              resolve();
+            };
+            img.onerror = reject;
+            img.src = screenshotPath;
+          });
+          
+          // Convert canvas to blob
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              showDialog('Failed to process image. Try long-pressing the image instead.', 'error', false);
+              return;
+            }
+            
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'date-picker-screenshot.png';
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(blobUrl);
+            }, 100);
+            
+            // Show success message
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+              showDialog('Image saved! Check your downloads or gallery. You can also long-press the image to save.', 'success', false);
+            }
+          }, 'image/png');
+        } catch (error) {
+          console.error('Error saving to gallery:', error);
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          if (isMobile) {
+            showDialog('Tap and hold the image to save it to your gallery, or use the Share button in your browser.', 'info', false);
+          } else {
+            showDialog('Failed to save image. Please try right-clicking the image and selecting "Save image as".', 'error', false);
+          }
+        }
       }
 
       function displayScreenshot(screenshotPath) {
         const screenshotSection = document.getElementById('screenshot-section');
         if (!screenshotSection) return;
 
+        // Check if mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const saveButtonText = isMobile ? 'Save to Gallery' : 'Download';
+
         screenshotSection.style.display = 'block';
         screenshotSection.innerHTML = `
           <div class="screenshot-actions">
             <div class="screenshot-label">Date Picker Preview</div>
-            <button class="download-button" onclick="downloadScreenshot('${screenshotPath}')">Download</button>
+            <button class="download-button" onclick="saveToGallery('${screenshotPath}')">${saveButtonText}</button>
           </div>
-          <img src="${screenshotPath}" alt="Date picker screenshot" class="screenshot-image" onerror="this.parentElement.innerHTML='<div class=\\'screenshot-empty\\'>Failed to load screenshot</div>'">
+          <div class="screenshot-image-wrapper">
+            <img 
+              src="${screenshotPath}" 
+              alt="Date picker screenshot" 
+              class="screenshot-image" 
+              onclick="saveToGallery('${screenshotPath}')"
+              style="cursor: pointer;"
+              loading="lazy"
+              onerror="this.parentElement.innerHTML='<div class=\\'screenshot-empty\\'>Failed to load screenshot</div>'"
+            >
+            ${isMobile ? '<div class="screenshot-hint">💾 Tap image or button to save • Long-press image for more options</div>' : ''}
+          </div>
         `;
         screenshotSection.classList.add('has-image');
         
