@@ -545,19 +545,11 @@
         transition: all 0.3s ease;
         display: block;
         -webkit-touch-callout: default;
-        -webkit-user-select: none;
-        user-select: none;
         touch-action: manipulation;
       }
 
       .screenshot-image:hover {
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-        transform: translateY(-2px);
-      }
-
-      .screenshot-image:active {
-        transform: scale(0.98);
-        opacity: 0.9;
       }
 
       /* Enable long-press context menu on mobile */
@@ -1452,9 +1444,37 @@
         }
       });
 
-      // Legacy function - now uses saveToGallery
+      // Simple download function for desktop/tablet
       async function downloadScreenshot(screenshotPath) {
-        await saveToGallery(screenshotPath);
+        try {
+          // Fetch the image as a blob
+          const response = await fetch(screenshotPath);
+          const blob = await response.blob();
+          
+          // Create object URL from blob
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Create download link
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = 'date-picker-screenshot.png';
+          link.style.display = 'none';
+          
+          // Append to body, click, and remove
+          document.body.appendChild(link);
+          link.click();
+          
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          }, 100);
+        } catch (error) {
+          console.error('Error downloading screenshot:', error);
+          // Fallback: open in new tab
+          window.open(screenshotPath, '_blank');
+          showDialog('Download failed. Image opened in new tab. Right-click to save.', 'info', false);
+        }
       }
 
       async function saveToGallery(screenshotPath) {
@@ -1545,27 +1565,29 @@
         const screenshotSection = document.getElementById('screenshot-section');
         if (!screenshotSection) return;
 
-        // Check if mobile device
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const saveButtonText = isMobile ? 'Save to Gallery' : 'Download';
+        // Check if mobile device (phones only, not tablets)
+        const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // Tablets are considered desktop for this purpose
+        const isTablet = /iPad/i.test(navigator.userAgent);
+        const showDownloadButton = !isMobile; // Show button on desktop and tablets
 
         screenshotSection.style.display = 'block';
         screenshotSection.innerHTML = `
+          ${showDownloadButton ? `
           <div class="screenshot-actions">
             <div class="screenshot-label">Date Picker Preview</div>
-            <button class="download-button" onclick="saveToGallery('${screenshotPath}')">${saveButtonText}</button>
+            <button type="button" class="download-button" onclick="downloadScreenshot('${screenshotPath}')">Download</button>
           </div>
+          ` : '<div class="screenshot-label">Date Picker Preview</div>'}
           <div class="screenshot-image-wrapper">
             <img 
               src="${screenshotPath}" 
               alt="Date picker screenshot" 
               class="screenshot-image" 
-              onclick="saveToGallery('${screenshotPath}')"
-              style="cursor: pointer;"
               loading="lazy"
               onerror="this.parentElement.innerHTML='<div class=\\'screenshot-empty\\'>Failed to load screenshot</div>'"
             >
-            ${isMobile ? '<div class="screenshot-hint">💾 Tap image or button to save • Long-press image for more options</div>' : ''}
+            ${isMobile ? '<div class="screenshot-hint">💾 Long-press image to save to gallery</div>' : ''}
           </div>
         `;
         screenshotSection.classList.add('has-image');
@@ -1689,7 +1711,7 @@
                     <div class="url-content">
                       <a href="<%= products[0].permalink %>" target="_blank" class="url-link" rel="noopener noreferrer">
                         <span class="url-text"><%= products[0].permalink %></span>
-                        <button class="copy-button" data-url="<%= products[0].permalink %>" title="Copy URL">
+                        <button type="button" class="copy-button" data-url="<%= products[0].permalink %>" title="Copy URL">
                           Copy
                         </button>
                       </a>
